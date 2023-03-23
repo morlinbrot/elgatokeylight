@@ -32,3 +32,9 @@ If (like me) you prefer to run the bash script everytime you start-up up your Ma
 May you see the light! 🔦 😆
 
 Akbur Ghafoor
+
+# Usage with launchd
+Following [this StackOverflow answer](https://stackoverflow.com/questions/6442364/running-script-upon-login-in-mac-os-x/13372744#13372744)
+
+- Update the `autolights.plist` file with the path to where you're copying the `autolights.sh` script.
+- Use the provided `install.sh` script to "install" `autolights.sh` as a hidden file in your home folder.
