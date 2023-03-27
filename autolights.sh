@@ -10,13 +10,20 @@ BRIGHTNESS=40
 TEMPERATURE=162
 
 switch() {
+  STR="on"
+  if [ $1 -eq 0 ]; then
+    STR="off"
+  fi
+
   for addr in "${IP_ADDRS[@]}"
   do
     ADDR="http://${addr}:9123/elgato/lights"
-    echo "Switching on light at "$ADDR
+    echo ""
+    echo "Switching $STR light at "$ADDR
 
+    # Default is using the settings from before.
     SETTINGS='{"lights":[{"on":'"$1"'}]}'
-    # Use this to always turn on with the settings above.
+    # Use the line below to always turn on with specified settings.
     # SETTINGS='{"lights":[{"brightness":'"${BRIGHTNESS}"',"temperature":'"${TEMPERATURE}"',"on":'"$1"'}],"numberOfLights":1}'
 
     curl --location --request PUT $ADDR --header 'Content-Type: application/json' --data-raw $SETTINGS
@@ -31,20 +38,21 @@ switch_off() {
   switch 0
 }
 
+STATUS=0
 
-# Begin looking at the system log via the steam sub-command. Using a --predicate and filtering by the correct and pull out the camera event 
-log stream --predicate 'subsystem == "com.apple.UVCExtension" and composedMessage contains "Post PowerLog"' | while read line; do
-  
-  # The camera start event has been caught and is set to 'On', turn the light on
-  if echo "$line" | grep -q "= On"; then
-  	echo "Camera has been activated, turn on the light."
-    switch_on
+log stream --predicate 'subsystem == "com.apple.cmio" and (composedMessage contains "stream")' | while read line; do
+  if [ $STATUS -eq 0 ]; then
+    if echo "$line" | grep -q -i "start"; then
+      STATUS=1
+      switch_on
+    fi
   fi
 
-  # If we catch a camera stop event, turn the light off.
-  if echo "$line" | grep -q "= Off"; then
-    echo
-  	echo "Camera shut down, turn off the light."
-  	switch_off
+  if [ $STATUS -eq 1 ]; then
+    if echo "$line" | grep -q -i "stop"; then
+      STATUS=0
+      switch_off
+    fi
   fi
+
 done

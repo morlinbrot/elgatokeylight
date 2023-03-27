@@ -38,3 +38,4 @@ Following [this StackOverflow answer](https://stackoverflow.com/questions/644236
 
 - Update the `autolights.plist` file with the path to where you're copying the `autolights.sh` script.
 - Use the provided `install.sh` script to "install" `autolights.sh` as a hidden file in your home folder.
+- Log out, then in or run `launchctl start com.user.autolights` to activate
